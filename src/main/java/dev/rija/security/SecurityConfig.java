@@ -1,16 +1,25 @@
 package dev.rija.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Autowired
+    @Qualifier("userDetailsServiceImpl")
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder; // instancie dans JwtSpringSecurityApplication
     /**
      * Indiquer a spring security comment chercher les utilisateurs et roles
      * @param auth
@@ -19,11 +28,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // utilisateur en memoire
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        /*PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         auth.inMemoryAuthentication()
                 .withUser("admin").password(encoder.encode("1234")).roles("ADMIN", "USER")
                 .and()
-                .withUser("user").password(encoder.encode("1234")).roles("USER");
+                .withUser("user").password(encoder.encode("1234")).roles("USER");*/
+
+        // authentification basee sur UserDetailsService
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(bCryptPasswordEncoder);
     }
 
     /**
@@ -42,6 +55,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.formLogin(); // localhost:8080/login
 
+        // gestion des droits sur les resources
+        http.authorizeRequests().antMatchers("/login/**", "/register/**").permitAll();
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/tasks/**").hasAnyAuthority("ADMIN");
         http.authorizeRequests().anyRequest().authenticated();
     }
 }

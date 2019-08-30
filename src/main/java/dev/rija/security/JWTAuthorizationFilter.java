@@ -21,11 +21,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     /**
      * Le filtre a pour but de parser le jwt renvoye dans le header de la request http
      * et de setter dans le SecurityContext un authenticatedUser
-     * @param request
-     * @param response
-     * @param filterChain
-     * @throws ServletException
-     * @throws IOException
+     *
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

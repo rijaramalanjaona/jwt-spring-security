@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -53,7 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          */
         http.csrf().disable();
 
-        http.formLogin(); // localhost:8080/login
+        // Desactiver authentification basee sur les sessions
+        // http.formLogin(); // localhost:8080/login
+
+        // securite en mode stateless
+        http.sessionManagement().sessionCreationPolicy((SessionCreationPolicy.STATELESS));
 
         // gestion des droits sur les resources
         http.authorizeRequests().antMatchers("/login/**", "/register/**").permitAll();

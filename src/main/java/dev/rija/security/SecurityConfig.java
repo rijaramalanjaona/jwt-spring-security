@@ -64,5 +64,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/login/**", "/register/**").permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/tasks/**").hasAnyAuthority("ADMIN");
         http.authorizeRequests().anyRequest().authenticated();
+
+        // utilisation de JWTAuthenticationFilter
+        http.addFilter(new JWTAuthenticationFilter(authenticationManager()));
     }
 }
